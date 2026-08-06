@@ -1,49 +1,56 @@
--- Burger Reviews: Rating Prediction + Topic Insights --
+# Burger Review Rating Prediction
 
-This project analyzes burger restaurant reviews and predicts star ratings from review text. It combines a predictive text model (TF-IDF + Ridge Regression) with interpretable keyword/topic-based analysis to understand what factors are most associated with higher or lower ratings.
+This component uses Yelp review text to estimate star ratings for Philadelphia burger restaurants, then converts the model's signals into themes a restaurant owner can act on.
 
--- Project Overview --
+## Business question
 
-The workflow filters businesses to only those in the Burgers category, cleans review text, removes rating “leak” phrases (example: “5 stars”), trains a TF-IDF + Ridge Regression model to predict star ratings from text, extracts influential attribute-related terms, and builds interpretable topic features using keyword counts (service, wait time, burger quality, etc.). The project also compares topic mentions between high-star and low-star reviews, runs regression models on topic features (including positive vs negative splits), and ranks burger businesses by predicted average rating.
+Which parts of the burger-restaurant experience show up most consistently in high- and low-rated reviews?
 
--- Models Used --
+## Approach
 
-Model 1: TF-IDF + Ridge Regression (Main Predictive Model)
-Input: cleaned review text
-Features: TF-IDF unigrams and bigrams
-Model: Ridge regression
-Output: predicted star ratings per review and per business
+1. Filter Yelp businesses to those tagged with **Burgers** and join them to their reviews.
+2. Clean review text and remove explicit rating phrases (for example, "5 stars") to avoid target leakage.
+3. Train a **TF-IDF + Ridge regression** model to predict review star ratings from unigrams and bigrams.
+4. Inspect influential terms and aggregate keyword mentions into understandable topics: service, speed/wait, burger quality, fries/sides, price/value, cleanliness, atmosphere, and delivery/takeout.
+5. Compare topic frequency in high- versus low-star reviews and estimate positive and negative topic effects.
+6. Aggregate predicted review ratings to rank businesses by predicted average rating.
 
-Model 2: Keyword Topic Models (Interpretability)
-These models use keyword-count features for categories such as Service, Speed/Wait, Burger Quality, Fries/Sides, Price/Value, Cleanliness, Atmosphere, and Delivery/Takeout. Topic features are used to compare high vs low star reviews, estimate the net effect of each category, and split certain categories into positive vs negative keywords to measure their impacts separately.
+## Why this approach is useful
 
--- Outputs --
+The predictive model captures a wide range of review language, while the topic analysis explains the output in business terms. This makes it possible to move from "the model predicts a lower rating" to a concrete question such as whether reviews mention slow service, poor food quality, or weak value.
 
-The script saves the following plots:
+## Outputs
 
-topic_high_minus_low.png
-Topic keyword mentions in high-star reviews minus low-star reviews
+Running [`main.py`](main.py) produces model metrics in the console and saves these visualizations:
 
-topic_effects_net.png
-Regression coefficients showing the net effect of topic keyword mentions
+| Visualization | What it shows |
+| --- | --- |
+| [Topic mentions: high vs. low ratings](topic_high_minus_low.png) | Difference in topic-keyword mentions between high-star and low-star reviews |
+| [Net topic effects](topic_effects_net.png) | Estimated relationship between each topic and rating |
+| [Positive vs. negative topic effects](topic_effects_pos_neg.png) | Separate estimated effects for favorable and unfavorable topic language |
 
-topic_effects_pos_neg.png
-Regression coefficients for positive vs negative topic keyword mentions
+## Data requirements
 
--- Data --
+The Yelp CSV files are not committed because of their size. To run the analysis, create this directory at the repository root:
 
-This project uses two CSV files: Data/businesses.csv and Data/reviews.csv.
-
-⚠️ Note: The dataset is not included in this repository because the files were too large to upload to GitHub. To run the project locally, place the CSV files in a folder named Data/ in the project root:
-
+```text
 Data/
-businesses.csv
-reviews.csv
+├── businesses.csv
+└── reviews.csv
+```
 
--- Notes / Method Details --
+The script expects those exact paths. The necessary Python packages are `pandas`, `numpy`, `scikit-learn`, and `matplotlib`.
 
-Review text is cleaned to remove explicit rating phrases such as “5 stars” to prevent leakage. TF-IDF is used to convert text into numeric features that highlight terms that are frequent in a review but rarer across the full dataset. Keyword topic features are simple counts of predefined words/phrases and are mainly used for interpretability.
+## Run
 
-TF-IDF is used to convert text into numeric features that highlight terms that are frequent in a review but rarer across the full dataset.
+From the repository root:
 
-Keyword topic features are simple counts of predefined words/phrases and are mainly used for interpretability.
+```bash
+python Machine_Learning/main.py
+```
+
+## Interpretation notes
+
+- Model and topic coefficients describe associations in review data; they do not prove that a topic causes a rating change.
+- Keyword topics are intentionally transparent rather than exhaustive, so they are best used as a guide for investigating operations and customer feedback.
+- The full competition narrative and recommendations are available in the [data presentation](../assets/Data-Presentation.pdf).
