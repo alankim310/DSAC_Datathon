@@ -55,4 +55,4 @@ The source code is included, but the Yelp CSV files are excluded because of thei
 
 ## Team
 
-Northwestern University students | DSAC Datathon 2026
+Proudly, Team Penguin (Oliver Mars, Alan Kim) | DSAC Datathon 2026
